@@ -1,5 +1,5 @@
 ---
-- hosts: biznesRadar
+- hosts: testVM
   become: true
   tasks:
   

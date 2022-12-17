@@ -13,9 +13,12 @@ terraform init
 echo "3. Setting up infrastructure with TF"
 terraform apply -auto-approve
 
-echo "4. Installing Docker on VM with Ansible"
+echo "4. Giving time to let finish setup"
+sleep 30
+
+echo "5. Installing Docker on VM with Ansible"
 cd ../Ansible-setup
 ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook main.yml -i hosts
 
-echo "5. Creating CA authority and self-signed cert with Ansible"
+echo "6. Creating CA authority and self-signed cert with Ansible"
 ansible-playbook createCAandSSLcert.yml -i hosts
