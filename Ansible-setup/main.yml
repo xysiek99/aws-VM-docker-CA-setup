@@ -1,0 +1,61 @@
+---
+- hosts: biznesRadar
+  become: true
+  tasks:
+  
+  - name: Run apt update and install docker dependencies
+    ansible.builtin.apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: yes
+    loop:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+  
+  - name: Add Docker GPG key
+    ansible.builtin.apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker repo
+    ansible.builtin.apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+      state: present
+
+  - name: Rerun apt update to make docker repo append
+    ansible.builtin.apt:
+      state: present
+      update_cache: yes
+
+  - name: Install docker and docker-compose
+    ansible.builtin.apt:
+      name: "{{ item }}"
+      state: latest
+      update_cache: yes
+    loop:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose
+
+  - name: Check if docker daemon is running
+    ansible.builtin.service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Check if docker group exists
+    ansible.builtin.group:
+      name: docker
+      state: present
+
+  - name: Add user to group docker
+    ansible.builtin.user:
+      name: ubuntu
+      groups:
+        - docker
+      append: yes
+

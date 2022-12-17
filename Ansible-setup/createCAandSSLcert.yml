@@ -1,0 +1,59 @@
+---
+- hosts: biznesRadar
+  become: true
+  tasks:
+
+  - name: Create directory for openssl
+    ansible.builtin.file:
+      path: /home/{{ ansible_user }}/openssl
+      state: directory
+      mode: '0755'
+  
+  - name: Create CA
+    ansible.builtin.shell: | 
+      openssl req -x509 \
+            -sha256 -days 356 \
+            -nodes \
+            -newkey rsa:2048 \
+            -subj "/CN=localhost/C=PL/L=Warsaw" \
+            -keyout rootCA.key -out rootCA.crt 
+    args:
+      chdir: openssl/
+
+  - name: Create the Server Private Key
+    ansible.builtin.shell: |
+      openssl genrsa -out server.key 2048
+    args:
+      chdir: openssl/
+
+  - name: Copy configuration files
+    ansible.builtin.copy:
+      src: "{{ item }}"
+      dest: /home/ubuntu/openssl/
+    loop:
+      - cert.conf
+      - csr.conf
+
+  - name: Generate CSR using servers private key
+    ansible.builtin.shell: |
+      openssl req -new -key server.key -out server.csr -config csr.conf
+    args:
+      chdir: openssl/
+
+  - name: Generate SSL cert with self signed CA
+    ansible.builtin.shell: |
+      openssl x509 -req \
+          -in server.csr \
+          -CA rootCA.crt -CAkey rootCA.key \
+          -CAcreateserial -out server.crt \
+          -days 365 \
+          -sha256 -extfile cert.conf
+    args:
+      chdir: openssl/
+
+  - name: copy rootCA.crt to localhost
+    ansible.builtin.fetch:
+      src: /home/{{ ansible_user }}/openssl/rootCA.crt
+      dest: ~/Downloads/
+      flat: yes
+

@@ -1,0 +1,10 @@
+.vscode
+step-by-step-ideas.txt
+setup_for_https.txt
+
+TF-setup/terraform.tfstate*
+TF-setup/.terraform*
+TF-setup/.terraform/*
+
+Ansible-setup/hosts
+Ansible-setup/files/cert.conf
