@@ -3,8 +3,19 @@
 # Before running remember to set correct 
 # home IP address in TF-setup/variables.tf
 
-echo "1. Create key pair for ssh"
-ssh-keygen -b 4096 -t rsa -f ~/.ssh/test_vm_key -q -N ""
+echo "1. Create key pair for ssh if not exists"
+PRIV_KEY=~/.ssh/test_vm_key
+PUB_KEY=~/.ssh/test_vm_key.pub
+
+if [ ! -f $PRIV_KEY ] || [ ! -f $PUB_KEY ]
+then
+    echo "Public, private or both keys don't exist - creating new key pair"
+    rm --force $PRIV_KEY
+    rm --force $PUB_KEY
+    ssh-keygen -b 4096 -t rsa -f $PRIV_KEY -q -N ""
+else
+    echo "Public and private keys exist - omitting creation"	
+fi
 
 echo "2. Init terraform"
 cd TF-setup

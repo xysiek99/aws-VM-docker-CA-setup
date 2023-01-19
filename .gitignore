@@ -8,3 +8,4 @@ TF-setup/.terraform/*
 
 Ansible-setup/hosts
 Ansible-setup/files/cert.conf
+testing.sh
